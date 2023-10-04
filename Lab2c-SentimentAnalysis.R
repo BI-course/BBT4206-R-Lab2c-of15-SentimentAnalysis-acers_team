@@ -7,7 +7,7 @@
 #
 # Lecturer: Allan Omondi
 # Contact: aomondi [at] strathmore.edu
-#
+# NickBwalley -> Branch -> 20231004
 # Note: The lecture contains both theory and practice. This file forms part of
 #       the practice. It has required lab work submissions that are graded for
 #       coursework marks.
