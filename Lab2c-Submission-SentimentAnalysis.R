@@ -280,8 +280,8 @@ evaluation_likes_and_wishes <- mid_course_evaluation %>%
   rename(Likes = `Q05_Likes->D - 1. Write two things you like about the teaching and learning in this unit so far.`) %>% # nolint
   rename(Wishes = `Q05_Wishes->D - 2. Write at least one recommendation to improve the teaching and learning in this unit (for the remaining weeks in the semester)`) %>% # nolint
   select(`Class Group`,
-         `Student's Gender`, Likes, Wishes) %>%
-  #filter(!is.na(`Average Course Evaluation Rating`)) %>%
+         `Student's Gender`, Absenteeism, Likes, Wishes) %>%
+  filter(!is.na(Absenteeism)) %>%
   arrange(`Class Group`)
 
 evaluation_likes_and_wishes$Likes <- sapply(
@@ -821,3 +821,41 @@ evaluation_wishes_filtered_nrc %>%
   ggtitle(paste("Classification of Words in Course Evaluation Wishes ",
                 "based on the NRC Lexicon")) +
   coord_flip()
+
+# STEP 10. Average absenteeism per Question ----
+## Average absenteeism per Question per Group ----
+evaluation_absenteeism_per_group <- mid_course_evaluation %>% # nolint
+  rename(`Class Group` = `Q01_Class Demographics`) %>%
+  filter(!is.na(Absenteeism)) %>%
+  group_by(`Class Group`, Gender) %>%
+  summarize(
+    `Absenteeism per group` = mean(Absenteeism)) %>%
+  
+  # arrange(Absenteeism) %>%
+  select(
+    `Class Group`,
+    Gender,
+    `Absenteeism per group`
+  )
+
+View(evaluation_absenteeism_per_group)
+
+### Visualizations (Grouped Vertical Bar Chart) ----
+# ggplot2 visualization samples are available here:
+# https://r-graph-gallery.com/index.html
+         
+ggplot(evaluation_absenteeism_per_group,
+       aes(fill = `Class Group`, y = `Absenteeism per group`, x = Gender,
+           label = `Absenteeism per group`)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  coord_flip() +  # Flip the coordinates to make it vertical
+  geom_text(position = position_dodge(width = 0.9),
+            hjust = 1, vjust = 0.5) +  # Add text labels
+  labs(title = "Standard Absenteeism per Group",
+       x = "Gender", y = "Absenteeism per group") +
+  scale_fill_manual(values = blue_grey_colours_6) +
+  blue_grey_theme() +
+  geom_hline(yintercept = 4, color = "#b90c0c",
+             linetype = "dashed", size = 1)
+         
+         
