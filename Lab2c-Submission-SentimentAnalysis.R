@@ -1,77 +1,3 @@
----
-title: "Business Intelligence Lab Submission Markdown"
-always_allow_html: true
-author: "Acers Team"
-date: "11/10/2023"
-output:
-  github_document: 
-    toc: yes
-    toc_depth: 4
-    fig_width: 6
-    fig_height: 4
-    df_print: default
-editor_options:
-  chunk_output_type: console
----
-
-# Student Details
-
-+---------------------------------------------------+------------------------------------------------------------------------------------------------------+
-| **Student ID Numbers and Names of Group Members** | *\<list one student name, group, and ID per line; you should be between 2 and 5 members per group\>* |
-|                                                   |                                                                                                      |
-|                                                   | 1.  122790 - C - Bwalley Nicholas                                                                    |
-|                                                   |                                                                                                      |
-|                                                   | 2.  133834 - C - Mongare Sarah                                                                       |
-|                                                   |                                                                                                      |
-|                                                   | 3.  133928 - C - Cheptoi Millicent                                                                   |
-|                                                   |                                                                                                      |
-|                                                   | 4.  134879 - C - Tulienge Lesley                                                                     |
-|                                                   |                                                                                                      |
-|                                                   | 5.  124461 - C - Kinya Angela                                                                        |
-+---------------------------------------------------+------------------------------------------------------------------------------------------------------+
-| **GitHub Classroom Group Name**                   | Acers Team                                                                                           |
-+---------------------------------------------------+------------------------------------------------------------------------------------------------------+
-| **Course Code**                                   | BBT4206                                                                                              |
-+---------------------------------------------------+------------------------------------------------------------------------------------------------------+
-| **Course Name**                                   | Business Intelligence II                                                                             |
-+---------------------------------------------------+------------------------------------------------------------------------------------------------------+
-| **Program**                                       | Bachelor of Business Information Technology                                                          |
-+---------------------------------------------------+------------------------------------------------------------------------------------------------------+
-| **Semester Duration**                             | 21^st^ August 2023 to 28^th^ November 2023                                                           |
-+---------------------------------------------------+------------------------------------------------------------------------------------------------------+
-
-# Setup Chunk
-
-**Note:** the following "*KnitR*" options have been set as the defaults:\
-`knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE, collapse = FALSE, tidy.opts = list(width.cutoff = 80), tidy = TRUE)`.
-
-More KnitR options are documented here <https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html> and here <https://yihui.org/knitr/options/>.
-
-```{r setup, include=FALSE}
-library(formatR)
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE,
-                      collapse = FALSE, tidy = TRUE)
-```
-
-**Note:** the following "*R Markdown*" options have been set as the defaults:
-
-> output:\
-> \
-> github_document:\
-> toc: yes\
-> toc_depth: 4\
-> fig_width: 6\
-> fig_height: 4\
-> df_print: default\
-> \
-> editor_options:\
-> chunk_output_type: console
-
-# STEP 1 : Install and load all the packages
-
-We installed all the packages that will enable us execute this lab:
-
-```{r Your First Code Chunk}
 # STEP 1. Install and Load the Required Packages ----
 # The following packages can be installed and loaded before proceeding to the
 # subsequent steps.
@@ -220,13 +146,6 @@ if (!is.element("lexicon", installed.packages()[, 1])) {
 }
 require("lexicon")
 
-```
-
-# STEP 2: Customizing the visualizations
-
-We proceeded to provide customizations for the visualization to be used:
-
-```{r Your Second Code Chunk}
 # STEP 2. Customize the Visualizations, Tables, and Colour Scheme ----
 # The following defines a blue-grey colour scheme for the visualizations:
 ## shades of blue and shades of grey
@@ -279,11 +198,7 @@ kable_theme <- function(dat, caption) {
                   full_width = FALSE)
 }
 
-```
-
-# Step 3: Loading and subsetting the dataset
-
-```{r Your Third Code Chunk}
+# STEP 3. Load the Dataset ----
 mid_course_evaluation <- read_csv(
   "data/Mid_Term_Course_Evaluation_Form_Preprocessed.csv",
   col_types = cols(
@@ -365,10 +280,11 @@ expand_contractions <- function(doc) {
 
 # Select the class group, gender, and most importantly, the likes and wishes from the original dataset
 evaluation_likes_and_wishes <- mid_course_evaluation %>%
-  mutate(`Student's Gender` = ifelse(Gender == 1, "Male", "Female")) %>%
+  mutate(`Student's Gender` =
+           ifelse(Gender == 1, "Male", "Female")) %>%
   rename(`Class Group` = `Q01_Class Demographics`) %>%
-  rename(`Likes` = `Q05_Likes->D - 1. Write two things you like about the teaching and learning in this unit so far.`,
-         `Wishes` = `Q05_Wishes->D - 2. Write at least one recommendation to improve the teaching and learning in this unit (for the remaining weeks in the semester)`) %>%
+  rename(Likes = `Q05_Likes->D - 1. Write two things you like about the teaching and learning in this unit so far.`) %>% # nolint
+  rename(Wishes = `Q05_Wishes->D - 2. Write at least one recommendation to improve the teaching and learning in this unit (for the remaining weeks in the semester)`) %>% # nolint
   select(`Class Group`,
          `Student's Gender`, Absenteeism, Likes, Wishes) %>%
   filter(!is.na(Absenteeism)) %>%
@@ -411,7 +327,7 @@ write.csv(evaluation_likes_and_wishes,
 undesirable_words <- c("wow", "lol", "none", "na")
 
 # unnest and remove stopwords, undesirable words, and short words
-evaluation_likes_filtered <- evaluation_likes_and_wishes %>%
+evaluation_likes_filtered <- evaluation_likes_and_wishes %>% # nolint
   unnest_tokens(word, Likes) %>%
   # do not join where the word is in the list of stopwords
   anti_join(stop_words, by = c("word")) %>%
@@ -425,7 +341,7 @@ write.csv(evaluation_likes_filtered,
           file = "data/evaluation_likes_filtered.csv",
           row.names = FALSE)
 
-evaluation_wishes_filtered <- evaluation_likes_and_wishes %>%
+evaluation_wishes_filtered <- evaluation_likes_and_wishes %>% # nolint
   unnest_tokens(word, Wishes) %>%
   # do not join where the word is in the list of stopwords
   anti_join(stop_words, by = c("word")) %>%
@@ -439,11 +355,7 @@ write.csv(evaluation_wishes_filtered,
           file = "data/evaluation_wishes_filtered.csv",
           row.names = FALSE)
 
-```
-
-# Loading the required Lexicon
-
-```{r Your Fourth Code Chunk}
+# STEP 4. Load the Required Lexicon (NRC) ----
 ## Sample Sentiment Lexicons ----
 # 3 common lexicons include:
 ### NRC ----
@@ -485,11 +397,7 @@ View(nrc)
 #loughran <- read_csv("data/LoughranMcDonald_MasterDictionary_2018.csv")
 #View(loughran)
 
-```
-
-# STEP 5. Inner Join the Likes/Wishes with the Corresponding Sentiment(s)
-
-```{r Your Fifth Code Chunk}
+# STEP 5. Inner Join the Likes/Wishes with the Corresponding Sentiment(s) ----
 # Load the lexicon from the specified file path
 lexicon_path <- "C:/Users/user/nrc/NRC-Emotion-Lexicon/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt"
 nrc_lexicon <- read.table(lexicon_path, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
@@ -504,11 +412,17 @@ evaluation_wishes_filtered_nrc <- evaluation_wishes_filtered %>%
   inner_join(nrc_lexicon, by = c("Wishes (tokenized)" = "word"),
              relationship = "many-to-many")
 
-```
+#evaluation_likes_filtered_nrc <- evaluation_likes_filtered %>%
+ # inner_join(get_sentiments("nrc"),
+  #           by = join_by(`Likes (tokenized)` == word),
+   #          relationship = "many-to-many")
 
-# STEP 6. Overall Sentiment
+#evaluation_wishes_filtered_nrc <- evaluation_wishes_filtered %>%
+ # inner_join(get_sentiments("nrc"),
+  #           by = join_by(`Wishes (tokenized)` == word),
+   #          relationship = "many-to-many")
 
-```{r Your Sixth Code Chunk}
+# STEP 6. Overall Sentiment ----
 ## Evaluation Likes ----
 nrc_likes_plot <- evaluation_likes_filtered_nrc %>%
   group_by(sentiment) %>%
@@ -577,11 +491,7 @@ meme(img, lab, "memes/nrc_wishes_plot.jpg", inset = nrc_wishes_plot)
 nrc_meme <- image_read("memes/nrc_wishes_plot.jpg")
 plot(nrc_meme)
 
-```
-
-# STEP 7. Frequency Sentiment per Group and per Gender
-
-```{r Your Seventh Code Chunk}
+# STEP 7. Frequency Sentiment per Group and per Gender ----
 ## Evaluation Likes per Group ----
 # We can save the plots by hard-coding the save function as follows:
 # NOTE: Execute one filetype at a time, i.e., either PNG, JPEG, SVG, or PDF.
@@ -768,11 +678,7 @@ dev.off()
 chordDiagram(nrc_wishes_chord, grid.col = grid_col, transparency = .2)
 title("Lexicon-Based Sentiment Analysis of Course Evaluation Wishes per Gender")
 
-```
-
-# STEP 8. Percentage Sentiment per Group and per Gender
-
-```{r Your Eighth Code Chunk}
+# STEP 8. Percentage Sentiment per Group and per Gender ----
 ## Evaluation Likes per Group ----
 # Get the count of words per sentiment per group
 nrc_likes_per_sentiment_per_group_radar <- # nolint
@@ -897,11 +803,7 @@ chartJSRadar(nrc_wishes_gender_radar_chart,
              showToolTipLabel = TRUE,
              main = "Lexicon−Based Percentage Sentiment Analysis of Course Evaluation Likes per Gender") # nolint
 
-```
-
-# STEP 9. Classification of Words per Sentiment
-
-```{r Your Ninth Code Chunk}
+# STEP 9. Classification of Words per Sentiment ----
 ## Evaluation Likes ----
 evaluation_likes_filtered_nrc %>%
   # filter(`Class Group` %in% "A") %>%
@@ -934,11 +836,7 @@ evaluation_wishes_filtered_nrc %>%
                 "based on the NRC Lexicon")) +
   coord_flip()
 
-```
-
-# STEP 10. Average absenteeism per Question
-
-```{r Your Tenth Code Chunk}
+# STEP 10. Average absenteeism per Question ----
 ## Average absenteeism per Question per Group ----
 evaluation_absenteeism_per_group <- mid_course_evaluation %>% # nolint
   rename(`Class Group` = `Q01_Class Demographics`) %>%
@@ -974,4 +872,4 @@ ggplot(evaluation_absenteeism_per_group,
   geom_hline(yintercept = 4, color = "#b90c0c",
              linetype = "dashed", size = 1)
          
-```
+         
