@@ -140,6 +140,12 @@ if (!is.element("stringr", installed.packages()[, 1])) {
 }
 require("stringr")
 
+if (!is.element("lexicon", installed.packages()[, 1])) {
+  install.packages("lexicon", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+require("lexicon")
+
 # STEP 2. Customize the Visualizations, Tables, and Colour Scheme ----
 # The following defines a blue-grey colour scheme for the visualizations:
 ## shades of blue and shades of grey
@@ -357,35 +363,43 @@ write.csv(evaluation_wishes_filtered,
 # Assigns words into one or more of the following ten categories:
 # positive, negative, anger, anticipation, disgust, fear, joy, sadness,
 # surprise, and trust.
-nrc <- get_sentiments("nrc")
+#nrc <- get_sentiments("nrc")
+#View(nrc)
+
+data(hash_nrc_emotions)
+nrc <- hash_nrc_emotions
+nrc <- nrc %>%
+  mutate(word = token, sentiment = emotion) %>%
+  select(word, sentiment)
 View(nrc)
 
 ### AFINN ----
 # Assigns words with a score that runs between -5 and 5. Negative scores
 # indicate negative sentiments and positive scores indicate positive sentiments
-afinn <- get_sentiments(lexicon = "afinn")
-View(afinn)
+#afinn <- get_sentiments(lexicon = "afinn")
+#View(afinn)
 
 ### Bing ----
 # Assigns words into positive and negative categories only
-bing <- get_sentiments("bing")
-View(bing)
+#bing <- get_sentiments("bing")
+#View(bing)
 
 ### Loughran ----
 # By Loughran & McDonald, (2010)
 # The Loughran lexicon is specifically designed for financial text analysis and
 # categorizes words into different financial sentiment categories.
-loughran <- get_sentiments("loughran")
-View(loughran)
+#loughran <- get_sentiments("loughran")
+#View(loughran)
 
 # If you get an error locating the Loughran lexicon using the code above,
 # then you can download it manually from the University of Notre Dame here:
 # URL: https://sraf.nd.edu/loughranmcdonald-master-dictionary/
-loughran <- read_csv("data/LoughranMcDonald_MasterDictionary_2018.csv")
-View(loughran)
+#loughran <- read_csv("data/LoughranMcDonald_MasterDictionary_2018.csv")
+#View(loughran)
 
 # STEP 5. Inner Join the Likes/Wishes with the Corresponding Sentiment(s) ----
 # Load the lexicon from the specified file path
+lexicon_path <- "C:/Users/user/nrc/NRC-Emotion-Lexicon/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt"
 nrc_lexicon <- read.table(lexicon_path, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
 colnames(nrc_lexicon) <- c("word", "sentiment", "score")
 

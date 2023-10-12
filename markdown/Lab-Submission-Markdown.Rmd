@@ -1,5 +1,6 @@
 ---
 title: "Business Intelligence Lab Submission Markdown"
+always_allow_html: true
 author: "Acers Team"
 date: "11/10/2023"
 output:
@@ -213,6 +214,12 @@ if (!is.element("stringr", installed.packages()[, 1])) {
 }
 require("stringr")
 
+if (!is.element("lexicon", installed.packages()[, 1])) {
+  install.packages("lexicon", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+require("lexicon")
+
 ```
 
 # STEP 2: Customizing the visualizations
@@ -358,11 +365,10 @@ expand_contractions <- function(doc) {
 
 # Select the class group, gender, and most importantly, the likes and wishes from the original dataset
 evaluation_likes_and_wishes <- mid_course_evaluation %>%
-  mutate(`Student's Gender` =
-           ifelse(Gender == 1, "Male", "Female")) %>%
+  mutate(`Student's Gender` = ifelse(Gender == 1, "Male", "Female")) %>%
   rename(`Class Group` = `Q01_Class Demographics`) %>%
-  rename(Likes = `Q05_Likes->D - 1. Write two things you like about the teaching and learning in this unit so far.`) %>% # nolint
-  rename(Wishes = `Q05_Wishes->D - 2. Write at least one recommendation to improve the teaching and learning in this unit (for the remaining weeks in the semester)`) %>% # nolint
+  rename(`Likes` = `Q05_Likes->D - 1. Write two things you like about the teaching and learning in this unit so far.`,
+         `Wishes` = `Q05_Wishes->D - 2. Write at least one recommendation to improve the teaching and learning in this unit (for the remaining weeks in the semester)`) %>%
   select(`Class Group`,
          `Student's Gender`, Absenteeism, Likes, Wishes) %>%
   filter(!is.na(Absenteeism)) %>%
@@ -405,7 +411,7 @@ write.csv(evaluation_likes_and_wishes,
 undesirable_words <- c("wow", "lol", "none", "na")
 
 # unnest and remove stopwords, undesirable words, and short words
-evaluation_likes_filtered <- evaluation_likes_and_wishes %>% # nolint
+evaluation_likes_filtered <- evaluation_likes_and_wishes %>%
   unnest_tokens(word, Likes) %>%
   # do not join where the word is in the list of stopwords
   anti_join(stop_words, by = c("word")) %>%
@@ -419,7 +425,7 @@ write.csv(evaluation_likes_filtered,
           file = "data/evaluation_likes_filtered.csv",
           row.names = FALSE)
 
-evaluation_wishes_filtered <- evaluation_likes_and_wishes %>% # nolint
+evaluation_wishes_filtered <- evaluation_likes_and_wishes %>%
   unnest_tokens(word, Wishes) %>%
   # do not join where the word is in the list of stopwords
   anti_join(stop_words, by = c("word")) %>%
@@ -445,32 +451,39 @@ write.csv(evaluation_wishes_filtered,
 # Assigns words into one or more of the following ten categories:
 # positive, negative, anger, anticipation, disgust, fear, joy, sadness,
 # surprise, and trust.
-nrc <- get_sentiments("nrc")
+#nrc <- get_sentiments("nrc")
+#View(nrc)
+
+data(hash_nrc_emotions)
+nrc <- hash_nrc_emotions
+nrc <- nrc %>%
+  mutate(word = token, sentiment = emotion) %>%
+  select(word, sentiment)
 View(nrc)
 
 ### AFINN ----
 # Assigns words with a score that runs between -5 and 5. Negative scores
 # indicate negative sentiments and positive scores indicate positive sentiments
-afinn <- get_sentiments(lexicon = "afinn")
-View(afinn)
+#afinn <- get_sentiments(lexicon = "afinn")
+#View(afinn)
 
 ### Bing ----
 # Assigns words into positive and negative categories only
-bing <- get_sentiments("bing")
-View(bing)
+#bing <- get_sentiments("bing")
+#View(bing)
 
 ### Loughran ----
 # By Loughran & McDonald, (2010)
 # The Loughran lexicon is specifically designed for financial text analysis and
 # categorizes words into different financial sentiment categories.
-loughran <- get_sentiments("loughran")
-View(loughran)
+#loughran <- get_sentiments("loughran")
+#View(loughran)
 
 # If you get an error locating the Loughran lexicon using the code above,
 # then you can download it manually from the University of Notre Dame here:
 # URL: https://sraf.nd.edu/loughranmcdonald-master-dictionary/
-loughran <- read_csv("data/LoughranMcDonald_MasterDictionary_2018.csv")
-View(loughran)
+#loughran <- read_csv("data/LoughranMcDonald_MasterDictionary_2018.csv")
+#View(loughran)
 
 ```
 
@@ -478,6 +491,7 @@ View(loughran)
 
 ```{r Your Fifth Code Chunk}
 # Load the lexicon from the specified file path
+lexicon_path <- "C:/Users/user/nrc/NRC-Emotion-Lexicon/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt"
 nrc_lexicon <- read.table(lexicon_path, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
 colnames(nrc_lexicon) <- c("word", "sentiment", "score")
 
